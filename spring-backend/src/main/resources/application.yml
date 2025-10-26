@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: spring-backend
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+
+# Python ??????
+recommendation:
+  engine:
+    url: http://localhost:5000
+    timeout: 5000
+
+server:
+  port: 8080
+
+logging:
+  level:
+    springbackend: DEBUG
+    org.springframework.web: INFO
+    org.springframework.data.redis: DEBUG
