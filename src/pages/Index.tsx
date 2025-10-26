@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mockApi } from '@/services/mockApi';
+import { api } from '@/services/api';
 import { Product } from '@/data/mockProducts';
 import { Navbar } from '@/components/Navbar';
 import { ProductCard } from '@/components/ProductCard';
@@ -27,7 +27,7 @@ const Index = () => {
         setIsLoadingMore(true);
       }
       
-      const response = await mockApi.getRecommendationList(pageNum, 12);
+      const response = await api.getRecommendationList(pageNum, 12);
       
       if (pageNum === 1) {
         setProducts(response.products);

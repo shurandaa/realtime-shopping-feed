@@ -7,7 +7,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProductById } from '@/data/mockProducts';
 import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
-import { mockApi } from '@/services/mockApi';
+import { api } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 
 const Cart = () => {
@@ -27,7 +27,7 @@ const Cart = () => {
 
     try {
       const productIds = cart.map(item => item.productId);
-      const result = await mockApi.purchase(productIds);
+      const result = await api.purchase(productIds);
       
       if (result.success) {
         toast({

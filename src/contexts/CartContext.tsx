@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { mockApi, CartItem } from '@/services/mockApi';
+import { api, CartItem } from '@/services/api';
 import { getProductById } from '@/data/mockProducts';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,7 +22,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshCart = async () => {
     try {
-      const cartData = await mockApi.getCart();
+      const cartData = await api.getCart();
       setCart(cartData);
     } catch (error) {
       console.error('Failed to refresh cart:', error);
@@ -35,7 +35,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addToCart = async (productId: string, quantity: number = 1) => {
     try {
-      await mockApi.addCart(productId, quantity);
+      await api.addCart(productId, quantity);
       await refreshCart();
       
       const product = getProductById(productId);
@@ -54,7 +54,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const removeFromCart = async (productId: string) => {
     try {
-      await mockApi.removeFromCart(productId);
+      await api.removeFromCart(productId);
       await refreshCart();
       
       toast({
@@ -77,7 +77,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     try {
-      await mockApi.updateCartQuantity(productId, quantity);
+      await api.updateCartQuantity(productId, quantity);
       await refreshCart();
     } catch (error) {
       toast({

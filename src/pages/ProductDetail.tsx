@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mockApi } from '@/services/mockApi';
+import { api } from '@/services/api';
 import { Product } from '@/data/mockProducts';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -32,7 +32,7 @@ const ProductDetail = () => {
       
       setIsLoading(true);
       try {
-        const data = await mockApi.getDetail(id);
+        const data = await api.getDetail(id);
         setProduct(data);
         setRecommendedProducts(data.recommendedList);
       } catch (error) {
