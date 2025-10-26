@@ -11,7 +11,6 @@ const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
-  const [recommendations, setRecommendations] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,12 +22,8 @@ const Index = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [allProducts, recommendedProducts] = await Promise.all([
-          mockApi.getAllProducts(),
-          mockApi.getRecommendationList()
-        ]);
+        const allProducts = await mockApi.getRecommendationList();
         setProducts(allProducts);
-        setRecommendations(recommendedProducts);
       } catch (error) {
         console.error('Failed to fetch products:', error);
       } finally {
@@ -54,17 +49,6 @@ const Index = () => {
     <>
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        {recommendations.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6">Recommended For You</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {recommendations.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </section>
-        )}
-
         <section>
           <h2 className="text-3xl font-bold mb-6">All Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
