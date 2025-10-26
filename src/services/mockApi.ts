@@ -30,46 +30,18 @@ export const mockApi = {
     };
   },
 
-  getRecommendationList: async (userId?: string, categories?: string[]): Promise<Product[]> => {
+  getRecommendationList: async (page: number = 1, pageSize: number = 12): Promise<{ products: Product[]; hasMore: boolean; total: number }> => {
     await delay();
     
-    // Get user's cart and purchase history from localStorage
-    const cartData = localStorage.getItem('cart');
-    const purchaseHistory = localStorage.getItem('purchaseHistory');
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const products = mockProducts.slice(startIndex, endIndex);
     
-    let userCategories: string[] = [];
-    
-    if (cartData) {
-      const cart: CartItem[] = JSON.parse(cartData);
-      const cartCategories = cart
-        .map(item => getProductById(item.productId)?.category)
-        .filter(Boolean) as string[];
-      userCategories = [...userCategories, ...cartCategories];
-    }
-    
-    if (purchaseHistory) {
-      const purchases: string[] = JSON.parse(purchaseHistory);
-      const purchaseCategories = purchases
-        .map(id => getProductById(id)?.category)
-        .filter(Boolean) as string[];
-      userCategories = [...userCategories, ...purchaseCategories];
-    }
-    
-    // If user has interaction history, prioritize those categories
-    if (userCategories.length > 0) {
-      const uniqueCategories = [...new Set(userCategories)];
-      const recommendations: Product[] = [];
-      
-      uniqueCategories.forEach(category => {
-        const categoryProducts = getRecommendedProducts(category);
-        recommendations.push(...categoryProducts);
-      });
-      
-      return [...new Set(recommendations)].slice(0, 8);
-    }
-    
-    // Otherwise return general recommendations
-    return mockProducts.slice(0, 8);
+    return {
+      products,
+      hasMore: endIndex < mockProducts.length,
+      total: mockProducts.length
+    };
   },
 
   getAllProducts: async (): Promise<Product[]> => {

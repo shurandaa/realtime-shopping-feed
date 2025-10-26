@@ -9,7 +9,8 @@ export interface Product {
   stock: number;
 }
 
-export const mockProducts: Product[] = [
+// Generate 60 products by extending the base set
+const baseProducts: Product[] = [
   {
     id: "1",
     name: "Wireless Headphones",
@@ -131,6 +132,20 @@ export const mockProducts: Product[] = [
     stock: 35
   }
 ];
+
+// Generate 60 products by repeating and modifying the base set
+export const mockProducts: Product[] = Array.from({ length: 60 }, (_, index) => {
+  const baseProduct = baseProducts[index % baseProducts.length];
+  const iteration = Math.floor(index / baseProducts.length);
+  
+  return {
+    ...baseProduct,
+    id: `${index + 1}`,
+    name: iteration > 0 ? `${baseProduct.name} ${String.fromCharCode(65 + iteration)}` : baseProduct.name,
+    price: baseProduct.price + (iteration * 10),
+    stock: baseProduct.stock + (iteration * 5)
+  };
+});
 
 export const getRecommendedProducts = (category: string, currentProductId?: string): Product[] => {
   return mockProducts
