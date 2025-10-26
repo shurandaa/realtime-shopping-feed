@@ -1,12 +1,12 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { api } from '@/services/api';
-import { Product } from '@/data/mockProducts';
-import { Navbar } from '@/components/Navbar';
-import { ProductCard } from '@/components/ProductCard';
-import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "@/services/api";
+import { Product } from "@/data/mockProducts";
+import { Navbar } from "@/components/Navbar";
+import { ProductCard } from "@/components/ProductCard";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -26,18 +26,19 @@ const Index = () => {
       } else {
         setIsLoadingMore(true);
       }
-      
+      console.log("before");
       const response = await api.getRecommendationList(pageNum, 12);
-      
+      console.log("response%", response);
+
       if (pageNum === 1) {
         setProducts(response.products);
       } else {
-        setProducts(prev => [...prev, ...response.products]);
+        setProducts((prev) => [...prev, ...response.products]);
       }
-      
+
       setHasMore(response.hasMore);
     } catch (error) {
-      console.error('Failed to fetch products:', error);
+      console.error("Failed to fetch products:", error);
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
@@ -46,7 +47,7 @@ const Index = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -59,7 +60,7 @@ const Index = () => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          setPage(prev => prev + 1);
+          setPage((prev) => prev + 1);
         }
       },
       { threshold: 0.1 }
@@ -111,7 +112,7 @@ const Index = () => {
           <h2 className="text-3xl font-bold mb-6">All Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product, index) => (
-              <div 
+              <div
                 key={product.id}
                 ref={index === products.length - 1 ? lastProductRef : null}
               >
@@ -135,13 +136,17 @@ const Index = () => {
 
           {!hasMore && products.length > 0 && (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">You've reached the end of the catalog</p>
+              <p className="text-muted-foreground">
+                You've reached the end of the catalog
+              </p>
             </div>
           )}
 
           {!isLoading && products.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">No products available at the moment</p>
+              <p className="text-muted-foreground text-lg">
+                No products available at the moment
+              </p>
             </div>
           )}
         </section>

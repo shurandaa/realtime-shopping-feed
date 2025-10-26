@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api, CartItem } from '@/services/api';
-import { getProductById } from '@/data/mockProducts';
-import { useToast } from '@/hooks/use-toast';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { api, CartItem } from "@/services/api";
+import { getProductById } from "@/data/mockProducts";
+import { useToast } from "@/hooks/use-toast";
 
 interface CartContextType {
   cart: CartItem[];
@@ -16,7 +16,9 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { toast } = useToast();
 
@@ -25,7 +27,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const cartData = await api.getCart();
       setCart(cartData);
     } catch (error) {
-      console.error('Failed to refresh cart:', error);
+      console.error("Failed to refresh cart:", error);
     }
   };
 
@@ -37,7 +39,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await api.addCart(productId, quantity);
       await refreshCart();
-      
+
       const product = getProductById(productId);
       toast({
         title: "Added to cart",
@@ -56,7 +58,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await api.removeFromCart(productId);
       await refreshCart();
-      
+
       toast({
         title: "Removed from cart",
         description: "Item has been removed from your cart",
@@ -75,7 +77,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await removeFromCart(productId);
       return;
     }
-    
+
     try {
       await api.updateCartQuantity(productId, quantity);
       await refreshCart();
@@ -90,29 +92,31 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     setCart([]);
-    localStorage.removeItem('cart');
+    localStorage.removeItem("cart");
   };
 
   const getCartTotal = () => {
     return cart.reduce((total, item) => {
-      const product = getProductById(item.productId);
-      return total + (product?.price || 0) * item.quantity;
+      console.log("@", item?.price * item.quantity);
+      return total + (item?.price || 0) * item.quantity;
     }, 0);
   };
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{
-      cart,
-      cartCount,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      refreshCart,
-      clearCart,
-      getCartTotal
-    }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        cartCount,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        refreshCart,
+        clearCart,
+        getCartTotal,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -121,7 +125,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error('useCart must be used within CartProvider');
+    throw new Error("useCart must be used within CartProvider");
   }
   return context;
 };

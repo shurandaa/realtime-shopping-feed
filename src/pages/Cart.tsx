@@ -1,24 +1,24 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Navbar } from '@/components/Navbar';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { useCart } from '@/contexts/CartContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { getProductById } from '@/data/mockProducts';
-import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
-import { api } from '@/services/api';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Navbar } from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
+import { api } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
 
 const Cart = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { cart, removeFromCart, updateQuantity, getCartTotal, refreshCart } = useCart();
+  const { cart, removeFromCart, updateQuantity, getCartTotal, refreshCart } =
+    useCart();
   const { toast } = useToast();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [isAuthenticated, navigate]);
 
@@ -26,16 +26,16 @@ const Cart = () => {
     if (cart.length === 0) return;
 
     try {
-      const productIds = cart.map(item => item.productId);
+      const productIds = cart.map((item) => item.productId);
       const result = await api.purchase(productIds);
-      
+
       if (result.success) {
         toast({
           title: "Purchase successful!",
           description: `Order ID: ${result.orderId}`,
         });
         await refreshCart();
-        navigate('/purchase', { state: { orderId: result.orderId } });
+        navigate("/purchase", { state: { orderId: result.orderId } });
       }
     } catch (error) {
       toast({
@@ -46,10 +46,38 @@ const Cart = () => {
     }
   };
 
-  const cartItems = cart.map(item => ({
-    ...item,
-    product: getProductById(item.productId)!
-  })).filter(item => item.product);
+  // Local state that holds resolved product objects for each cart item
+  const [cartItemsDetailed, setCartItemsDetailed] = useState<
+    { product: any; quantity: number }[]
+  >([]);
+
+  // Whenever `cart` changes, fetch detailed product info for each item
+  useEffect(() => {
+    let mounted = true;
+
+    const loadDetails = async () => {
+      try {
+        const results = await Promise.all(
+          cart.map(async (item) => {
+            const data = await api.getDetail(item.productId);
+            return { product: data, quantity: item.quantity };
+          })
+        );
+
+        if (mounted) setCartItemsDetailed(results);
+      } catch (error) {
+        console.error("Failed to load cart item details:", error);
+      }
+    };
+
+    loadDetails();
+
+    return () => {
+      mounted = false;
+    };
+  }, [cart]);
+
+  console.log("Resolved cart items:", cartItemsDetailed);
 
   const total = getCartTotal();
 
@@ -64,9 +92,7 @@ const Cart = () => {
             <p className="text-muted-foreground mb-6">
               Add some products to get started!
             </p>
-            <Button onClick={() => navigate('/')}>
-              Continue Shopping
-            </Button>
+            <Button onClick={() => navigate("/")}>Continue Shopping</Button>
           </div>
         </div>
       </>
@@ -77,11 +103,7 @@ const Cart = () => {
     <>
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-4"
-        >
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Continue Shopping
         </Button>
@@ -90,7 +112,7 @@ const Cart = () => {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
-            {cartItems.map(({ product, quantity }) => (
+            {cartItemsDetailed.map(({ product, quantity }) => (
               <Card key={product.id}>
                 <CardContent className="p-4">
                   <div className="flex gap-4">
@@ -108,7 +130,9 @@ const Cart = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateQuantity(product.id, quantity - 1)}
+                          onClick={() =>
+                            updateQuantity(product.id, quantity - 1)
+                          }
                         >
                           -
                         </Button>
@@ -116,7 +140,9 @@ const Cart = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateQuantity(product.id, quantity + 1)}
+                          onClick={() =>
+                            updateQuantity(product.id, quantity + 1)
+                          }
                           disabled={quantity >= product.stock}
                         >
                           +
